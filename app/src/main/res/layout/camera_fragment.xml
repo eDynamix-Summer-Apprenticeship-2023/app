@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:layout_margin="10dp">
+
+    <TextView
+        android:id="@+id/text"
+        android:textSize="25dp"
+        android:layout_marginTop="5dp"
+        android:layout_centerHorizontal="true"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Click the camera BTN to open it" />
+    <Button
+        android:id="@+id/btn_camera_picture_id"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Camera/picture"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/text"
+        android:layout_marginTop="5dp"
+        />
+
+    <ImageView
+        android:id="@+id/image_view_id"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/take_video"
+        android:layout_marginTop="0dp"
+        android:visibility="visible"
+        />
+    <VideoView
+        android:id="@+id/video_view_id"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/take_video"
+        android:layout_marginTop="0dp"
+        android:visibility="invisible"
+        />
+
+    <Button
+        android:id="@+id/take_video"
+
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_below="@id/btn_camera_picture_id"
+        android:text="Camera/video"
+        />
+
+
+</RelativeLayout>
