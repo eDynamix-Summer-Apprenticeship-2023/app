@@ -42,7 +42,7 @@ public class AudioFragment extends Fragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         binding = AudioFragmentBinding.inflate(inflater, container, false);
 
-        viewModel = new ViewModelProvider(requireActivity()).get(RecordingsViewModel.class);
+        viewModel = new ViewModelProvider(this).get(RecordingsViewModel.class);
 
         binding.setViewModel(viewModel);
         binding.setLifecycleOwner(getViewLifecycleOwner());
