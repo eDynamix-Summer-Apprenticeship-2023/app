@@ -44,11 +44,10 @@ public class AudioFragment extends Fragment {
 
         viewModel = new ViewModelProvider(this).get(RecordingsViewModel.class);
 
-        binding.setViewModel(viewModel);
         binding.setLifecycleOwner(getViewLifecycleOwner());
+        binding.setViewModel(viewModel);
 
         adapter = new AudioAdapter();
-        adapter.setRecordings(viewModel.getRecordings().getValue());
         adapter.setRecordingItemButtonOnClick(recording -> viewModel.togglePlayback(recording));
 
         viewModel.getRecordings().observe(getViewLifecycleOwner(), recordings -> adapter.setRecordings(recordings));
