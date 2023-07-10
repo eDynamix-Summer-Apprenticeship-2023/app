@@ -22,6 +22,7 @@ import com.example.edynamixapprenticeship.model.audio.Recording;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -38,18 +39,27 @@ public class RecordingLocalDataSource {
     private final Realm realm;
     private MediaRecorder recorder;
     private MediaPlayer player;
+    private final RealmResults<Recording> recordingsRealmResult;
+    private final MutableLiveData<List<Recording>> recordings;
     private String currentRecordingLocation;
     private final MutableLiveData<Recording> currentlyPlayingRecording;
 
     @Inject
     public RecordingLocalDataSource(@ApplicationContext Context context) {
         this.context = context;
-        this.currentlyPlayingRecording = new MutableLiveData<>(null);
+
         Realm.init(context);
         RealmConfiguration config = new RealmConfiguration.Builder()
                 .deleteRealmIfMigrationNeeded()
                 .build();
         realm = Realm.getInstance(config);
+
+        this.recordings = new MutableLiveData<>(new ArrayList<>());
+        this.currentlyPlayingRecording = new MutableLiveData<>(null);
+
+        this.recordingsRealmResult = realm.where(Recording.class).findAllAsync();
+        this.recordings.setValue(recordingsRealmResult);
+        recordingsRealmResult.addChangeListener((recordings, changeSet) -> this.recordings.postValue(realm.copyFromRealm(recordings)));
     }
 
     public void startRecording() {
@@ -77,7 +87,7 @@ public class RecordingLocalDataSource {
         } else {
             File directory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC);
             File file = new File(directory, fileName);
-            recorder.setOutputFile(currentRecordingLocation);
+            recorder.setOutputFile(file.getAbsolutePath());
             this.currentRecordingLocation = file.getAbsolutePath();
         }
 
@@ -96,17 +106,13 @@ public class RecordingLocalDataSource {
         recorder.release();
         recorder = null;
 
-        String newRecordingLocation = currentRecordingLocation;
-        Recording newRecording = new Recording(newRecordingLocation, getDurationOfRecording(newRecordingLocation));
+        Recording newRecording = new Recording(currentRecordingLocation, getDurationOfRecording(currentRecordingLocation));
 
         realm.executeTransactionAsync(bgRealm -> bgRealm.copyToRealmOrUpdate(newRecording));
     }
 
-    public MutableLiveData<List<Recording>> getRecordings() {
-        RealmResults<Recording> results = realm.where(Recording.class).findAllAsync();
-        MutableLiveData<List<Recording>> data = new MutableLiveData<>();
-        results.addChangeListener((recordings, changeSet) -> data.postValue(realm.copyFromRealm(recordings)));
-        return data;
+    public LiveData<List<Recording>> getRecordings() {
+        return recordings;
     }
 
 
@@ -161,10 +167,8 @@ public class RecordingLocalDataSource {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 retriever.setDataSource(context, Uri.parse(location));
             } else {
-                retriever.setDataSource(context, Uri.parse(location));
+                retriever.setDataSource(location);
             }
-
-            retriever.setDataSource(context, Uri.parse(location));
             String durationStr = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
                 retriever.close();
