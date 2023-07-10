@@ -26,8 +26,8 @@ public class RecordingRepository {
         localDataSource.stopRecording();
     }
 
-    public void startPlayback(String location, MediaPlayer.OnCompletionListener onCompletionListener) {
-        localDataSource.startPlaying(location, onCompletionListener);
+    public void startPlayback(Recording recording) {
+        localDataSource.startPlaying(recording);
     }
 
     public void stopPlayback() {
@@ -40,5 +40,9 @@ public class RecordingRepository {
 
     public void cleanup() {
         localDataSource.close();
+    }
+
+    public LiveData<Recording> getCurrentlyPlayingRecording() {
+        return localDataSource.getCurrentlyPlayingRecording();
     }
 }

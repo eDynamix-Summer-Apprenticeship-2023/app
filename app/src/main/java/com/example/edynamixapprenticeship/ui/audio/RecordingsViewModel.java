@@ -17,15 +17,15 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
 public class RecordingsViewModel extends ViewModel {
     private final RecordingRepository recordingRepository;
     private final LiveData<List<Recording>> recordings;
-    private final MutableLiveData<Recording> currentlyPlayingRecording;
+    private final LiveData<Recording> currentlyPlayingRecording;
     private final MutableLiveData<Boolean> isRecording;
 
     @Inject
     public RecordingsViewModel(RecordingRepository repository) {
-        this.currentlyPlayingRecording = new MutableLiveData<>(null);
         this.isRecording = new MutableLiveData<>(false);
         recordingRepository = repository;
         recordings = recordingRepository.getRecordings();
+        currentlyPlayingRecording = recordingRepository.getCurrentlyPlayingRecording();
     }
 
     public LiveData<List<Recording>> getRecordings() {
@@ -44,12 +44,10 @@ public class RecordingsViewModel extends ViewModel {
 
     public void togglePlayback(Recording recording) {
         if (currentlyPlayingRecording.getValue() == null) {
-            currentlyPlayingRecording.setValue(recording);
-            recordingRepository.startPlayback(recording.getLocation(), mediaPlayer -> currentlyPlayingRecording.setValue(null));
+            recordingRepository.startPlayback(recording);
         } else if (!currentlyPlayingRecording.getValue().equals(recording)) {
             recordingRepository.stopPlayback();
-            currentlyPlayingRecording.setValue(recording);
-            recordingRepository.startPlayback(recording.getLocation(), mediaPlayer -> currentlyPlayingRecording.setValue(null));
+            recordingRepository.startPlayback(recording);
         } else recordingRepository.stopPlayback();
     }
 

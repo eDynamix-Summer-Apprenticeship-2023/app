@@ -14,6 +14,7 @@ import android.provider.MediaStore;
 import android.util.Log;
 
 import androidx.annotation.RequiresApi;
+import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
 import com.example.edynamixapprenticeship.model.audio.Recording;
@@ -38,11 +39,12 @@ public class RecordingLocalDataSource {
     private MediaRecorder recorder;
     private MediaPlayer player;
     private String currentRecordingLocation;
-    private String currentPlaybackLocation;
+    private final MutableLiveData<Recording> currentlyPlayingRecording;
 
     @Inject
     public RecordingLocalDataSource(@ApplicationContext Context context) {
         this.context = context;
+        this.currentlyPlayingRecording = new MutableLiveData<>(null);
         Realm.init(context);
         RealmConfiguration config = new RealmConfiguration.Builder()
                 .deleteRealmIfMigrationNeeded()
@@ -108,39 +110,31 @@ public class RecordingLocalDataSource {
     }
 
 
-    public void startPlaying(String location, MediaPlayer.OnCompletionListener onCompletionListener) {
-        if (currentPlaybackLocation != null) stopPlaying();
+    public void startPlaying(Recording recording) {
+        if (currentlyPlayingRecording.getValue() != null) stopPlaying();
 
         player = new MediaPlayer();
         try {
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                player.setDataSource(context, Uri.parse(location));
+                player.setDataSource(context, Uri.parse(recording.getLocation()));
             } else {
-                player.setDataSource(location);
+                player.setDataSource(recording.getLocation());
             }
-            this.currentPlaybackLocation = location;
-            if (onCompletionListener != null) player.setOnCompletionListener(onCompletionListener);
+            this.currentlyPlayingRecording.setValue(recording);
+            player.setOnCompletionListener(mediaPlayer -> currentlyPlayingRecording.setValue(null));
             player.prepare();
             player.start();
         } catch (IOException e) {
             Log.e(LOG_TAG, "MediaPlayer prepare() failed");
             Log.e(LOG_TAG, e.getMessage());
-            Log.e(LOG_TAG, location);
+            Log.e(LOG_TAG, recording.getLocation());
         }
     }
 
     public void stopPlaying() {
         player.release();
         player = null;
-        this.currentPlaybackLocation = null;
-    }
-
-    public String getCurrentRecordingLocation() {
-        return currentRecordingLocation;
-    }
-
-    public String getCurrentPlaybackLocation() {
-        return currentPlaybackLocation;
+        this.currentlyPlayingRecording.setValue(null);
     }
 
     @RequiresApi(api = Build.VERSION_CODES.Q)
@@ -187,5 +181,9 @@ public class RecordingLocalDataSource {
 
     public void close() {
         if (!realm.isClosed()) realm.close();
+    }
+
+    public LiveData<Recording> getCurrentlyPlayingRecording() {
+        return currentlyPlayingRecording;
     }
 }
