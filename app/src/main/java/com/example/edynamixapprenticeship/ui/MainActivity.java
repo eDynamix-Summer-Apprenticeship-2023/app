@@ -6,6 +6,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.edynamixapprenticeship.R;
 import com.example.edynamixapprenticeship.ui.audio.AudioFragment;
+import com.example.edynamixapprenticeship.ui.camera.CameraFragment;
 
 import dagger.hilt.android.AndroidEntryPoint;
 
@@ -20,7 +21,7 @@ public class MainActivity extends AppCompatActivity {
         if (savedInstanceState == null)
             getSupportFragmentManager().beginTransaction()
                     .setReorderingAllowed(true)
-                    .add(R.id.fragment_container_view, AudioFragment.class, null)
+                    .add(R.id.fragment_container_view, CameraFragment.class, null)
                     .commit();
     }
 }
