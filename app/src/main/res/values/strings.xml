@@ -3,4 +3,6 @@
     <string name="audio_record_fab_content_desc">Record audio</string>
     <string name="fab_record_text">Record</string>
     <string name="fab_save.text">Save</string>
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
 </resources>
