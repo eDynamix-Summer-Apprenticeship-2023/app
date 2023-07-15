@@ -3,4 +3,7 @@
     <string name="audio_record_fab_content_desc">Record audio</string>
     <string name="fab_record_text">Record</string>
     <string name="fab_save.text">Save</string>
+    <string name="the_weather">The weather</string>
+    <string name="Bulgaria">Bulgaria</string>
+    <string name="Europe">Europe</string>
 </resources>

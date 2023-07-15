@@ -2,8 +2,10 @@
 
 buildscript {
     repositories {
+        google()
         mavenCentral()
     }
+
     dependencies {
         classpath "io.realm:realm-gradle-plugin:10.16.1"
     }
