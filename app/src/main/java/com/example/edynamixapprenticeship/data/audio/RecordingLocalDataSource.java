@@ -27,7 +27,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
@@ -41,13 +40,14 @@ public class RecordingLocalDataSource {
     private final Context context;
     private final Handler handler;
     private final Realm realm;
-    private MediaRecorder recorder;
-    private MediaPlayer player;
+    @SuppressWarnings("FieldCanBeLocal")
     private final RealmResults<Recording> recordingsRealmResult;
     private final MutableLiveData<List<Recording>> recordings;
     private final MutableLiveData<Recording> playingRecording;
     private final MutableLiveData<Long> playingProgress;
     private final Runnable playingProgressRunnable;
+    private MediaRecorder recorder;
+    private MediaPlayer player;
     private String recordingLocation;
 
     @Inject
