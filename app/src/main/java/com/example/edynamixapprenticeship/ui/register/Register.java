@@ -20,6 +20,8 @@ import com.example.edynamixapprenticeship.R;
 
 import java.util.Random;
 import java.util.Scanner;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class Register extends AppCompatActivity {
 
@@ -40,6 +42,7 @@ public class Register extends AppCompatActivity {
             @Override
             public void onClick(View view) {
 
+                Log.d("Test_MK", "Login");
                 Toast.makeText(Register.this, "LOGIN", Toast.LENGTH_LONG).show();
 //                Intent register_info = new Intent(this, Log.class);
 //                startActivity(register_info);
@@ -64,9 +67,9 @@ public class Register extends AppCompatActivity {
         String password_value = password.getText().toString();
         String confirm_password_value = confirm_password.getText().toString();
 
-        Log.d("Test_MK", "Email:" + email_value);
-        Log.d("Test_MK", "Password:" + password_value);
-        Log.d("Test_MK", "Confirm Password:" + confirm_password_value);
+        Log.d("Test_MK", "Email: " + email_value);
+        Log.d("Test_MK", "Password: " + password_value);
+        Log.d("Test_MK", "Confirm Password: " + confirm_password_value);
 
 
         String alert_message = "";
@@ -81,7 +84,16 @@ public class Register extends AppCompatActivity {
 
         } else {
 
-            alert_message = "Please enter a valid email address!";
+            if(valid_email(email_value)){
+
+                alert_message = "Please enter a valid password!";
+
+            } else {
+
+                alert_message = "Please enter a valid email address!";
+
+            }
+
             Toast.makeText(this, alert_message, Toast.LENGTH_LONG).show();
 
         }
@@ -90,22 +102,27 @@ public class Register extends AppCompatActivity {
 
     public  boolean valid_email (String email) {
 
-        return  true;
+        String regex ="^(?<username>[\\w\\-\\.]+)@(?<mailServer>[\\w\\-.]+)\\.(?<domain>[\\w-]{2,4})$";
+
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(email);
+
+        boolean confirm = matcher.find();
+
+        Log.d("Test_MK", "Email valid: " + confirm);
+
+        return confirm;
     }
 
     public  boolean valid_password (String password, String confirm_password) {
 
         int password_length = password.length();
 
-        if(password_length <= 12 && password_length >= 1 && password.equals(confirm_password)) {
+        boolean confirm = password_length <= 12 && password_length >= 1 && password.equals(confirm_password);
 
-            return true;
+        Log.d("Test_MK", "Password valid: " + confirm);
 
-        }else {
-
-            return  false;
-
-        }
+        return confirm;
 
     }
 
