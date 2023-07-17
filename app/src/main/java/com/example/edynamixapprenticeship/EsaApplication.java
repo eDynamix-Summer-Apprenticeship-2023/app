@@ -16,6 +16,7 @@ import io.realm.mongodb.Credentials;
 import io.realm.mongodb.sync.MutableSubscriptionSet;
 import io.realm.mongodb.sync.Subscription;
 import io.realm.mongodb.sync.SyncConfiguration;
+import io.realm.mongodb.sync.SyncSession;
 
 @HiltAndroidApp
 public class EsaApplication extends Application {
@@ -41,9 +42,11 @@ public class EsaApplication extends Application {
                         .initialSubscriptions((realm, subscriptions) -> {
                             subscriptions.add(Subscription.create("allRecordings", realm.where(Recording.class)));
                         })
-                        .inMemory()
                         .build();
                 Realm.setDefaultConfiguration(config);
+
+                SyncSession syncSession = realmApp.getSync().getSession(config);
+                syncSession.start();
             } else {
                 Log.e("AUTH", "Failed to log in: " + it.getError().getErrorMessage());
             }

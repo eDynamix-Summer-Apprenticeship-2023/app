@@ -116,11 +116,7 @@ public class AudioAdapter extends RecyclerView.Adapter<AudioAdapter.ViewHolder> 
         }
 
         void setPlaying(boolean playing) {
-            if (playing) {
-                binding.recordingItemSlider.setEnabled(true);
-            } else {
-                binding.recordingItemSlider.setEnabled(false);
-            }
+            binding.recordingItemSlider.setEnabled(playing);
         }
 
         void setPlayingProgress(long position) {
