@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.text.SpannableString;
 import android.text.Spanned;
+import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.util.Log;
 import android.view.View;
@@ -34,17 +35,21 @@ public class Register extends AppCompatActivity {
         String login_redirect_value = login_redirect.getText().toString();
 
         SpannableString ss = new SpannableString(login_redirect_value);
-        
+
         ClickableSpan clickableSpan = new ClickableSpan() {
             @Override
             public void onClick(View view) {
 
                 Toast.makeText(Register.this, "LOGIN", Toast.LENGTH_LONG).show();
+//                Intent register_info = new Intent(this, Log.class);
+//                startActivity(register_info);
 
             }
         };
 
         ss.setSpan(clickableSpan, 26,31, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        login_redirect.setText(ss);
+        login_redirect.setMovementMethod(LinkMovementMethod.getInstance());
 
     }
 
