@@ -1,23 +1,51 @@
 package com.example.edynamixapprenticeship.ui.register;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.SpannableString;
+import android.text.Spanned;
+import android.text.style.ClickableSpan;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.edynamixapprenticeship.R;
 
+import java.util.Random;
+import java.util.Scanner;
+
 public class Register extends AppCompatActivity {
+
+    //public static Scanner sc = new Scanner(System.in);
+    public static Random rnd = new Random();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
+
+        TextView login_redirect = findViewById(R.id.login_redirect);
+        String login_redirect_value = login_redirect.getText().toString();
+
+        SpannableString ss = new SpannableString(login_redirect_value);
+        
+        ClickableSpan clickableSpan = new ClickableSpan() {
+            @Override
+            public void onClick(View view) {
+
+                Toast.makeText(Register.this, "LOGIN", Toast.LENGTH_LONG).show();
+
+            }
+        };
+
+        ss.setSpan(clickableSpan, 26,31, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+
     }
 
     public void register (View v) {
