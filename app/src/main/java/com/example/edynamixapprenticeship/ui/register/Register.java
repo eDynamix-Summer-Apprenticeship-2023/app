@@ -58,16 +58,19 @@ public class Register extends AppCompatActivity {
         Button button_register = (Button) v;
         EditText email = findViewById(R.id.email);
         EditText password = findViewById(R.id.password);
+        EditText confirm_password = findViewById(R.id.confirm_password);
 
         String email_value = email.getText().toString();
         String password_value = password.getText().toString();
+        String confirm_password_value = confirm_password.getText().toString();
 
         Log.d("Test_MK", "Email:" + email_value);
         Log.d("Test_MK", "Password:" + password_value);
+        Log.d("Test_MK", "Confirm Password:" + confirm_password_value);
 
         String alert_message = "";
 
-        if(valid_email(email_value) && valid_password(password_value)){
+        if(valid_email(email_value) && valid_password(password_value, confirm_password_value)){
 
             alert_message = "Successfully registered user !";
             Toast.makeText(this, alert_message, Toast.LENGTH_LONG).show();
@@ -89,17 +92,17 @@ public class Register extends AppCompatActivity {
         return  true;
     }
 
-    public  boolean valid_password (String password) {
+    public  boolean valid_password (String password, String confirm_password) {
 
         int password_length = password.length();
 
-        if(password_length >= 12) {
+        if(password_length <= 12 && password_length >= 1 && password.equals(confirm_password)) {
 
             return true;
 
         }else {
 
-            return false;
+            return  false;
 
         }
 
