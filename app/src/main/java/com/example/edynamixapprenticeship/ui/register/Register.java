@@ -68,6 +68,7 @@ public class Register extends AppCompatActivity {
         Log.d("Test_MK", "Password:" + password_value);
         Log.d("Test_MK", "Confirm Password:" + confirm_password_value);
 
+
         String alert_message = "";
 
         if(valid_email(email_value) && valid_password(password_value, confirm_password_value)){
