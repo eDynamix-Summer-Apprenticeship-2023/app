@@ -3,4 +3,9 @@
     <string name="audio_record_fab_content_desc">Record audio</string>
     <string name="fab_record_text">Record</string>
     <string name="fab_save_text">Save</string>
+    <string name="audio_screen_title">Audio Recordings</string>
+    <string name="audio_fab_content_desc">Record/Save recording</string>
+    <string name="audio_search_title">Search</string>
+    <string name="audio_sort_title">Sort</string>
+    <string name="audio_favourites_title">Favourites</string>
 </resources>

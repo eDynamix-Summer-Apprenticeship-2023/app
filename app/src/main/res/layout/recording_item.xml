@@ -1,46 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
-<com.google.android.material.card.MaterialCardView
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<com.google.android.material.card.MaterialCardView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/recording_item_card"
+    style="?attr/materialCardViewElevatedStyle"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:layout_margin="8dp"
-    app:cardElevation="2dp">
+    android:layout_margin="8dp">
 
-    <RelativeLayout
+    <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
         android:padding="16dp">
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/recording_item_title"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_marginStart="8dp"
+            android:layout_marginTop="8dp"
             android:textSize="18sp"
-            android:textStyle="bold" />
+            android:textStyle="bold"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            tools:text="Very long recording title" />
+
+        <com.google.android.material.textview.MaterialTextView
+            android:id="@+id/recording_item_datetime"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:layout_constraintBottom_toBottomOf="@+id/recording_item_title"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/recording_item_title"
+            tools:text="21:34 10/07/23" />
+
+        <com.google.android.material.slider.Slider
+            android:id="@+id/recording_item_slider"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:enabled="false"
+            android:valueFrom="0.0"
+            app:haloRadius="14dp"
+            app:layout_constraintEnd_toStartOf="@+id/recording_item_duration"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/recording_item_title"
+            app:thumbElevation="1dp"
+            app:thumbRadius="8dp"
+            app:trackColorInactive="@color/material_on_surface_stroke"
+            tools:stepSize="1.0"
+            tools:value="6.0"
+            tools:valueTo="20.0" />
 
         <com.google.android.material.textview.MaterialTextView
             android:id="@+id/recording_item_duration"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignBaseline="@id/recording_item_button"
-            android:layout_alignParentStart="true"
-            android:textSize="16sp" />
+            android:textSize="16sp"
+            app:layout_constraintBottom_toBottomOf="@+id/recording_item_slider"
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintTop_toTopOf="@+id/recording_item_slider"
+            app:layout_constraintVertical_bias="0.461"
+            tools:text="05:23" />
 
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/recording_item_button"
-            style="?attr/materialIconButtonStyle"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/recording_item_title"
-            android:layout_alignParentEnd="true"
-            app:icon="@drawable/twotone_play_circle_24"
-            app:iconSize="34sp" />
-
-        <com.google.android.material.slider.Slider
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_below="@id/recording_item_button" />
-    </RelativeLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
 </com.google.android.material.card.MaterialCardView>

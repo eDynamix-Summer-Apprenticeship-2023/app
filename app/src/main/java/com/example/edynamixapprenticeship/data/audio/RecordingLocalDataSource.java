@@ -9,6 +9,8 @@ import android.media.MediaRecorder;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Environment;
+import android.os.Handler;
+import android.os.Looper;
 import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.util.Log;
@@ -23,43 +25,55 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
 
 import dagger.hilt.android.qualifiers.ApplicationContext;
 import io.realm.Realm;
-import io.realm.RealmConfiguration;
 import io.realm.RealmResults;
 
 public class RecordingLocalDataSource {
     private static final String LOG_TAG = RecordingLocalDataSource.class.getSimpleName();
     private final Context context;
+    private final Handler handler;
     private final Realm realm;
     private MediaRecorder recorder;
     private MediaPlayer player;
     private final RealmResults<Recording> recordingsRealmResult;
     private final MutableLiveData<List<Recording>> recordings;
-    private String currentRecordingLocation;
-    private final MutableLiveData<Recording> currentlyPlayingRecording;
+    private final MutableLiveData<Recording> playingRecording;
+    private final MutableLiveData<Long> playingProgress;
+    private final Runnable playingProgressRunnable;
+    private String recordingLocation;
 
     @Inject
     public RecordingLocalDataSource(@ApplicationContext Context context) {
         this.context = context;
 
-        Realm.init(context);
-        RealmConfiguration config = new RealmConfiguration.Builder()
-                .deleteRealmIfMigrationNeeded()
-                .build();
-        realm = Realm.getInstance(config);
+        realm = Realm.getDefaultInstance();
 
         this.recordings = new MutableLiveData<>(new ArrayList<>());
-        this.currentlyPlayingRecording = new MutableLiveData<>(null);
+        this.playingRecording = new MutableLiveData<>(null);
+        this.playingProgress = new MutableLiveData<>(0L);
 
         this.recordingsRealmResult = realm.where(Recording.class).findAllAsync();
+        recordingsRealmResult.addChangeListener((realmRecordings, changeSet) -> recordings.postValue(realm.copyFromRealm(realmRecordings)));
         this.recordings.setValue(recordingsRealmResult);
-        recordingsRealmResult.addChangeListener((recordings, changeSet) -> this.recordings.postValue(realm.copyFromRealm(recordings)));
+
+        this.handler = new Handler(Looper.getMainLooper());
+        this.playingProgressRunnable = new Runnable() {
+            @Override
+            public void run() {
+                if (player != null && player.isPlaying()) {
+                    playingProgress.postValue(player.getCurrentPosition() / 1000L);
+                    handler.postDelayed(this, 1000);
+                }
+            }
+        };
     }
 
     public void startRecording() {
@@ -80,7 +94,7 @@ public class RecordingLocalDataSource {
             try {
                 ParcelFileDescriptor pfd = context.getContentResolver().openFileDescriptor(audioUri, "w");
                 recorder.setOutputFile(pfd.getFileDescriptor());
-                this.currentRecordingLocation = audioUri.toString();
+                recordingLocation = audioUri.toString();
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             }
@@ -88,7 +102,7 @@ public class RecordingLocalDataSource {
             File directory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC);
             File file = new File(directory, fileName);
             recorder.setOutputFile(file.getAbsolutePath());
-            this.currentRecordingLocation = file.getAbsolutePath();
+            recordingLocation = file.getAbsolutePath();
         }
 
         try {
@@ -106,9 +120,12 @@ public class RecordingLocalDataSource {
         recorder.release();
         recorder = null;
 
-        Recording newRecording = new Recording(currentRecordingLocation, getDurationOfRecording(currentRecordingLocation));
-
-        realm.executeTransactionAsync(bgRealm -> bgRealm.copyToRealmOrUpdate(newRecording));
+        realm.executeTransactionAsync(realm -> {
+            Recording recording = realm.createObject(Recording.class, UUID.randomUUID());
+            recording.setLocation(recordingLocation);
+            recording.setDuration(getDurationOfRecording(recordingLocation));
+            recording.setCreatedAt(Calendar.getInstance().getTime());
+        });
     }
 
     public LiveData<List<Recording>> getRecordings() {
@@ -117,7 +134,7 @@ public class RecordingLocalDataSource {
 
 
     public void startPlaying(Recording recording) {
-        if (currentlyPlayingRecording.getValue() != null) stopPlaying();
+        if (playingRecording.getValue() != null) stopPlaying();
 
         player = new MediaPlayer();
         try {
@@ -126,21 +143,37 @@ public class RecordingLocalDataSource {
             } else {
                 player.setDataSource(recording.getLocation());
             }
-            this.currentlyPlayingRecording.setValue(recording);
-            player.setOnCompletionListener(mediaPlayer -> currentlyPlayingRecording.setValue(null));
+            playingRecording.setValue(recording);
+            player.setOnCompletionListener(mediaPlayer -> stopPlaying());
             player.prepare();
             player.start();
+
+            handler.postDelayed(playingProgressRunnable, 500);
         } catch (IOException e) {
             Log.e(LOG_TAG, "MediaPlayer prepare() failed");
             Log.e(LOG_TAG, e.getMessage());
-            Log.e(LOG_TAG, recording.getLocation());
         }
     }
 
     public void stopPlaying() {
         player.release();
         player = null;
-        this.currentlyPlayingRecording.setValue(null);
+        playingRecording.setValue(null);
+        handler.removeCallbacks(playingProgressRunnable);
+    }
+
+    public void seekTo(Float position) {
+        handler.removeCallbacks(playingProgressRunnable);
+        player.seekTo((int) (position * 1000));
+        handler.postDelayed(playingProgressRunnable, 500);
+    }
+
+    public LiveData<Recording> getPlayingRecording() {
+        return playingRecording;
+    }
+
+    public LiveData<Long> getPlayingProgress() {
+        return playingProgress;
     }
 
     @RequiresApi(api = Build.VERSION_CODES.Q)
@@ -175,7 +208,7 @@ public class RecordingLocalDataSource {
             }
 
             long durationMs = Long.parseLong(durationStr);
-            return TimeUnit.MILLISECONDS.toSeconds(durationMs);
+            return 1 + TimeUnit.MILLISECONDS.toSeconds(durationMs);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -185,9 +218,5 @@ public class RecordingLocalDataSource {
 
     public void close() {
         if (!realm.isClosed()) realm.close();
-    }
-
-    public LiveData<Recording> getCurrentlyPlayingRecording() {
-        return currentlyPlayingRecording;
     }
 }

@@ -32,15 +32,23 @@ public class RecordingRepository {
         localDataSource.stopPlaying();
     }
 
+    public void seekTo(Float position) {
+        localDataSource.seekTo(position);
+    }
+
     public LiveData<List<Recording>> getRecordings() {
         return localDataSource.getRecordings();
     }
 
-    public void cleanup() {
-        localDataSource.close();
+    public LiveData<Recording> getPlayingRecording() {
+        return localDataSource.getPlayingRecording();
     }
 
-    public LiveData<Recording> getCurrentlyPlayingRecording() {
-        return localDataSource.getCurrentlyPlayingRecording();
+    public LiveData<Long> getPlayingProgress() {
+        return localDataSource.getPlayingProgress();
+    }
+
+    public void cleanup() {
+        localDataSource.close();
     }
 }
