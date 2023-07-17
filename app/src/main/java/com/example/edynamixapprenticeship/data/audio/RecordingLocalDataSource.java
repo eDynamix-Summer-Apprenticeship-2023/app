@@ -120,12 +120,15 @@ public class RecordingLocalDataSource {
         recorder.release();
         recorder = null;
 
-        realm.executeTransactionAsync(realm -> {
-            Recording recording = realm.createObject(Recording.class, UUID.randomUUID());
-            recording.setLocation(recordingLocation);
-            recording.setDuration(getDurationOfRecording(recordingLocation));
-            recording.setCreatedAt(Calendar.getInstance().getTime());
-        });
+        Recording newRecording = new Recording(recordingLocation, getDurationOfRecording(recordingLocation), Calendar.getInstance().getTime());
+
+        realm.executeTransactionAsync(bgRealm -> bgRealm.copyToRealmOrUpdate(newRecording));
+//        realm.executeTransactionAsync(realm -> {
+//            Recording recording = realm.createObject(Recording.class, UUID.randomUUID());
+//            recording.setLocation(recordingLocation);
+//            recording.setDuration(getDurationOfRecording(recordingLocation));
+//            recording.setCreatedAt(Calendar.getInstance().getTime());
+//        });
     }
 
     public LiveData<List<Recording>> getRecordings() {
