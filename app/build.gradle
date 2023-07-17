@@ -19,7 +19,8 @@ android {
     }
 
     buildFeatures {
-        viewBinding true
+        viewBinding = true
+        buildConfig = true
     }
 
     defaultConfig {
@@ -30,6 +31,8 @@ android {
         versionName "1.0"
 
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+
+        buildConfigField "String", "REALM_APP_ID", "\"application-0-iynqf\""
     }
 
     buildTypes {

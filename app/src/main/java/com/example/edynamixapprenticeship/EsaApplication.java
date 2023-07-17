@@ -13,7 +13,6 @@ import io.realm.Realm;
 import io.realm.mongodb.App;
 import io.realm.mongodb.AppConfiguration;
 import io.realm.mongodb.Credentials;
-import io.realm.mongodb.sync.MutableSubscriptionSet;
 import io.realm.mongodb.sync.Subscription;
 import io.realm.mongodb.sync.SyncConfiguration;
 import io.realm.mongodb.sync.SyncSession;
@@ -29,7 +28,7 @@ public class EsaApplication extends Application {
 
         Realm.init(this);
 
-        String realmAppID = "application-0-iynqf";
+        String realmAppID = BuildConfig.REALM_APP_ID;
 
         realmApp = new App(new AppConfiguration.Builder(realmAppID).build());
 
@@ -39,9 +38,7 @@ public class EsaApplication extends Application {
             if (it.isSuccess()) {
                 Log.i("AUTH", "Logged in as: " + it.get().getId());
                 SyncConfiguration config = new SyncConfiguration.Builder(Objects.requireNonNull(realmApp.currentUser()))
-                        .initialSubscriptions((realm, subscriptions) -> {
-                            subscriptions.add(Subscription.create("allRecordings", realm.where(Recording.class)));
-                        })
+                        .initialSubscriptions((realm, subscriptions) -> subscriptions.add(Subscription.create("allRecordings", realm.where(Recording.class))))
                         .build();
                 Realm.setDefaultConfiguration(config);
 
