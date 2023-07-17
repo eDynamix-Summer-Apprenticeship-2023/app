@@ -1,3 +1,6 @@
 <resources>
-    <style name="Base.Theme.EDynamixApprenticeship" parent="Theme.Material3.DayNight.NoActionBar" />
+    <style name="Theme.EDynamixApprenticeship" parent="Theme.Material3.DayNight.NoActionBar">
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+    </style>
 </resources>
