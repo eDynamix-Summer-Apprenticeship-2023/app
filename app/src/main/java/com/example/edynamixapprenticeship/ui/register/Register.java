@@ -9,10 +9,13 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.os.UserHandle;
 import android.provider.Contacts;
+import android.text.Highlights;
 import android.text.SpannableString;
 import android.text.Spanned;
+import android.text.TextPaint;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
+import android.text.style.UnderlineSpan;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -109,10 +112,12 @@ public class Register extends AppCompatActivity {
 
             if(valid_email(email_value)){
 
+                normalize_text(email, email_value);
                 alert_message = "Please enter a valid password!";
 
             } else {
 
+                underline_text(email, email_value);
                 alert_message = "Please enter a valid email address!";
 
             }
@@ -125,7 +130,7 @@ public class Register extends AppCompatActivity {
 
     }
 
-    public  boolean valid_email (String email) {
+    public boolean valid_email (String email) {
 
         String regex ="^(?<username>[\\w\\-\\.]+)@(?<mailServer>[\\w\\-.]+)\\.(?<domain>[\\w-]{2,4})$";
 
@@ -139,7 +144,7 @@ public class Register extends AppCompatActivity {
         return confirm;
     }
 
-    public  boolean valid_password (String password, String confirm_password) {
+    public boolean valid_password (String password, String confirm_password) {
 
         int password_length = password.length();
 
@@ -148,6 +153,23 @@ public class Register extends AppCompatActivity {
         Log.d("Test_MK", "Password valid: " + confirm);
 
         return confirm;
+
+    }
+
+    public void underline_text(EditText editText, String text){
+
+        SpannableString ss = new SpannableString(text);
+
+        ss.setSpan(new UnderlineSpan(), 0, text.length(),0);
+        editText.setText(ss);
+        editText.setTextColor(Color.parseColor("#ff3300"));
+
+    }
+
+    public void normalize_text(EditText editText, String text){
+
+        editText.setText(text);
+        editText.setTextColor(Color.parseColor("#000000"));
 
     }
 
