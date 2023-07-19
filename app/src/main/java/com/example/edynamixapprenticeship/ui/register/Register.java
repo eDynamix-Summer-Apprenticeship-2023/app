@@ -5,6 +5,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.UserHandle;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
@@ -23,15 +24,31 @@ import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import io.realm.Realm;
+import io.realm.*;
+import io.realm.RealmList;
+import io.realm.mongodb.App;
+import io.realm.mongodb.AppConfiguration;
+import io.realm.mongodb.User;
+
 public class Register extends AppCompatActivity {
 
     //public static Scanner sc = new Scanner(System.in);
     public static Random rnd = new Random();
 
+    String Appid = "edynamix-cqcwz";
+    String email_value = "";
+    String password_value = "";
+    String confirm_password_value = "";
+    App app;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
+
+        Realm.init(this);
+        app = new App(new AppConfiguration.Builder(Appid).build());
 
         TextView login_redirect = findViewById(R.id.login_redirect);
         String login_redirect_value = login_redirect.getText().toString();
@@ -44,6 +61,7 @@ public class Register extends AppCompatActivity {
 
                 Log.d("Test_MK", "Login");
                 Toast.makeText(Register.this, "LOGIN", Toast.LENGTH_LONG).show();
+
 //                Intent register_info = new Intent(this, Log.class);
 //                startActivity(register_info);
 
@@ -63,9 +81,9 @@ public class Register extends AppCompatActivity {
         EditText password = findViewById(R.id.password);
         EditText confirm_password = findViewById(R.id.confirm_password);
 
-        String email_value = email.getText().toString();
-        String password_value = password.getText().toString();
-        String confirm_password_value = confirm_password.getText().toString();
+        email_value = email.getText().toString();
+        password_value = password.getText().toString();
+        confirm_password_value = confirm_password.getText().toString();
 
         Log.d("Test_MK", "Email: " + email_value);
         Log.d("Test_MK", "Password: " + password_value);
