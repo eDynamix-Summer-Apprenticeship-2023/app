@@ -110,13 +110,10 @@ public class Register extends AppCompatActivity {
             if(valid_email(email_value)){
 
                 alert_message = "Please enter a valid password!";
-                password.setBackgroundTintList(ColorStateList.valueOf(2));
-                confirm_password.setBackgroundTintList(ColorStateList.valueOf(2));
 
             } else {
 
                 alert_message = "Please enter a valid email address!";
-                email.setBackgroundTintList(ColorStateList.valueOf(2));
 
             }
 
