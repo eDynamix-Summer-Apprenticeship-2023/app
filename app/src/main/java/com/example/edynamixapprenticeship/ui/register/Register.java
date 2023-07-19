@@ -4,8 +4,11 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.content.res.ColorStateList;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.os.UserHandle;
+import android.provider.Contacts;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.method.LinkMovementMethod;
@@ -34,45 +37,47 @@ import io.realm.mongodb.User;
 public class Register extends AppCompatActivity {
 
     //public static Scanner sc = new Scanner(System.in);
-    public static Random rnd = new Random();
+    //public static Random rnd = new Random();
 
-    String Appid = "edynamix-cqcwz";
+//    Realm realm;
+//    String Appid = "edynamix-cqcwz";
+//    App app;
     String email_value = "";
     String password_value = "";
     String confirm_password_value = "";
-    App app;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
 
-        Realm.init(this);
-        app = new App(new AppConfiguration.Builder(Appid).build());
+//        realm = Realm.getDefaultInstance();
+//        Realm.init(this);
+//        app = new App(new AppConfiguration.Builder(Appid).build());
 
         TextView login_redirect = findViewById(R.id.login_redirect);
         String login_redirect_value = login_redirect.getText().toString();
 
         SpannableString ss = new SpannableString(login_redirect_value);
 
-        ClickableSpan clickableSpan = new ClickableSpan() {
-            @Override
-            public void onClick(View view) {
-
-                Log.d("Test_MK", "Login");
-                Toast.makeText(Register.this, "LOGIN", Toast.LENGTH_LONG).show();
-
-//                Intent register_info = new Intent(this, Log.class);
-//                startActivity(register_info);
-
-            }
-        };
-
         ss.setSpan(clickableSpan, 26,31, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
         login_redirect.setText(ss);
         login_redirect.setMovementMethod(LinkMovementMethod.getInstance());
 
     }
+
+    ClickableSpan clickableSpan = new ClickableSpan() {
+        @Override
+        public void onClick(View view) {
+
+            Log.d("Test_MK", "Login");
+            Toast.makeText(Register.this, "LOGIN", Toast.LENGTH_LONG).show();
+
+//                Intent register_info = new Intent(this, Log.class);
+//                startActivity(register_info);
+
+        }
+    };
 
     public void register (View v) {
 
@@ -105,16 +110,21 @@ public class Register extends AppCompatActivity {
             if(valid_email(email_value)){
 
                 alert_message = "Please enter a valid password!";
+                password.setBackgroundTintList(ColorStateList.valueOf(2));
+                confirm_password.setBackgroundTintList(ColorStateList.valueOf(2));
 
             } else {
 
                 alert_message = "Please enter a valid email address!";
+                email.setBackgroundTintList(ColorStateList.valueOf(2));
 
             }
 
             Toast.makeText(this, alert_message, Toast.LENGTH_LONG).show();
 
         }
+
+        Log.d("Test_MK", "---------------------------------------");
 
     }
 
