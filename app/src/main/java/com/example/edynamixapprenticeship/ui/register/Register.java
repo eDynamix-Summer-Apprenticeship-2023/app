@@ -1,18 +1,12 @@
 package com.example.edynamixapprenticeship.ui.register;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
-import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.os.UserHandle;
-import android.provider.Contacts;
-import android.text.Highlights;
 import android.text.SpannableString;
 import android.text.Spanned;
-import android.text.TextPaint;
 import android.text.method.LinkMovementMethod;
 import android.text.style.ClickableSpan;
 import android.text.style.UnderlineSpan;
@@ -25,47 +19,109 @@ import android.widget.Toast;
 
 import com.example.edynamixapprenticeship.R;
 
-import java.util.Random;
-import java.util.Scanner;
+import org.bson.Document;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import io.realm.Realm;
-import io.realm.*;
-import io.realm.RealmList;
 import io.realm.mongodb.App;
 import io.realm.mongodb.AppConfiguration;
+import io.realm.mongodb.Credentials;
 import io.realm.mongodb.User;
+import io.realm.mongodb.mongo.MongoClient;
+import io.realm.mongodb.mongo.MongoCollection;
+import io.realm.mongodb.mongo.MongoDatabase;
 
 public class Register extends AppCompatActivity {
 
     //public static Scanner sc = new Scanner(System.in);
     //public static Random rnd = new Random();
 
-//    Realm realm;
-//    String Appid = "edynamix-cqcwz";
-//    App app;
-    String email_value = "";
-    String password_value = "";
-    String confirm_password_value = "";
+    MongoDatabase mongoDatabase;
+    MongoClient mongoClient;
+
+    String appID = "edynamix-cqcwz";
+    App app;
+    User user;
+    MongoCollection<Document> mongoCollection;
+    String emailValue = "";
+    String passwordValue = "";
+    String confirmPasswordValue = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register);
 
-//        realm = Realm.getDefaultInstance();
-//        Realm.init(this);
-//        app = new App(new AppConfiguration.Builder(Appid).build());
+        clickableText();
 
-        TextView login_redirect = findViewById(R.id.login_redirect);
-        String login_redirect_value = login_redirect.getText().toString();
+        Realm.init(this);
+        app = new App(new AppConfiguration.Builder(appID).build());
 
-        SpannableString ss = new SpannableString(login_redirect_value);
+        Credentials credentials = Credentials.emailPassword("gamermartinbg@gmail.com", "MartK-0546");
+        app.loginAsync(credentials, it->{});
 
-        ss.setSpan(clickableSpan, 26,31, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
-        login_redirect.setText(ss);
-        login_redirect.setMovementMethod(LinkMovementMethod.getInstance());
+        user = app.currentUser();
+        mongoClient = user.getMongoClient("mongodb-atlas");
+        mongoDatabase = mongoClient.getDatabase("eDynamix_Test");
+        mongoCollection = mongoDatabase.getCollection("Email/Password");
+
+    }
+
+    public void register (View v) {
+
+        Button buttonRegister = (Button) v;
+        EditText email = findViewById(R.id.email);
+        EditText password = findViewById(R.id.password);
+        EditText confirmPassword = findViewById(R.id.confirm_password);
+
+        emailValue = email.getText().toString();
+        passwordValue = password.getText().toString();
+        confirmPasswordValue = confirmPassword.getText().toString();
+
+        String alertMessage = "";
+
+        if(validEmail(emailValue) && validPassword(passwordValue, confirmPasswordValue)){
+
+            alertMessage = "Successfully registered user !";
+            Toast.makeText(this, alertMessage, Toast.LENGTH_LONG).show();
+
+            mongoCollection.insertOne(new Document("userID", user.getId()).append("Email/password", emailValue + " " + passwordValue)).getAsync(it->{});
+
+            //loginRedirect();
+
+        } else {
+
+            if(validEmail(emailValue)){
+
+                normalizeText(email, emailValue);
+                alertMessage = "Please enter a valid password!";
+
+            } else {
+
+                underlineText(email, emailValue);
+                alertMessage = "Please enter a valid email address!";
+
+            }
+
+            Toast.makeText(this, alertMessage, Toast.LENGTH_LONG).show();
+
+        }
+
+    }
+
+
+    public void clickableText() {
+
+        TextView loginRedirect = findViewById(R.id.login_redirect);
+        String loginRedirectValue = loginRedirect.getText().toString();
+
+        SpannableString spannableString = new SpannableString(loginRedirectValue);
+
+        spannableString.setSpan(clickableSpan, 26,31, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
+        loginRedirect.setText(spannableString);
+        loginRedirect.setMovementMethod(LinkMovementMethod.getInstance());
 
     }
 
@@ -73,64 +129,12 @@ public class Register extends AppCompatActivity {
         @Override
         public void onClick(View view) {
 
-            Log.d("Test_MK", "Login");
-            Toast.makeText(Register.this, "LOGIN", Toast.LENGTH_LONG).show();
-
-//                Intent register_info = new Intent(this, Log.class);
-//                startActivity(register_info);
+            //loginRedirect();
 
         }
     };
 
-    public void register (View v) {
-
-        Button button_register = (Button) v;
-        EditText email = findViewById(R.id.email);
-        EditText password = findViewById(R.id.password);
-        EditText confirm_password = findViewById(R.id.confirm_password);
-
-        email_value = email.getText().toString();
-        password_value = password.getText().toString();
-        confirm_password_value = confirm_password.getText().toString();
-
-        Log.d("Test_MK", "Email: " + email_value);
-        Log.d("Test_MK", "Password: " + password_value);
-        Log.d("Test_MK", "Confirm Password: " + confirm_password_value);
-
-
-        String alert_message = "";
-
-        if(valid_email(email_value) && valid_password(password_value, confirm_password_value)){
-
-            alert_message = "Successfully registered user !";
-            Toast.makeText(this, alert_message, Toast.LENGTH_LONG).show();
-
-//            Intent register_info = new Intent(this, Log.class);
-//            startActivity(register_info);
-
-        } else {
-
-            if(valid_email(email_value)){
-
-                normalize_text(email, email_value);
-                alert_message = "Please enter a valid password!";
-
-            } else {
-
-                underline_text(email, email_value);
-                alert_message = "Please enter a valid email address!";
-
-            }
-
-            Toast.makeText(this, alert_message, Toast.LENGTH_LONG).show();
-
-        }
-
-        Log.d("Test_MK", "---------------------------------------");
-
-    }
-
-    public boolean valid_email (String email) {
+    public boolean validEmail(String email) {
 
         String regex ="^(?<username>[\\w\\-\\.]+)@(?<mailServer>[\\w\\-.]+)\\.(?<domain>[\\w-]{2,4})$";
 
@@ -139,37 +143,44 @@ public class Register extends AppCompatActivity {
 
         boolean confirm = matcher.find();
 
-        Log.d("Test_MK", "Email valid: " + confirm);
-
         return confirm;
     }
 
-    public boolean valid_password (String password, String confirm_password) {
+    public boolean validPassword(String password, String confirmPassword) {
 
-        int password_length = password.length();
+        //Using A-Z a-z 0-9 - _ . , 8 - 12 char
+        String regex = "^(?<password>[\\w\\d\\S\\-\\_\\.\\,]{8,12})$";
 
-        boolean confirm = password_length <= 12 && password_length >= 1 && password.equals(confirm_password);
+        Pattern pattern = Pattern.compile(regex);
+        Matcher matcher = pattern.matcher(password);
 
-        Log.d("Test_MK", "Password valid: " + confirm);
+        boolean confirm = matcher.find() && password.equals(confirmPassword);
 
         return confirm;
 
     }
 
-    public void underline_text(EditText editText, String text){
+    public void underlineText(EditText editText, String text){
 
-        SpannableString ss = new SpannableString(text);
+        SpannableString spannableString = new SpannableString(text);
 
-        ss.setSpan(new UnderlineSpan(), 0, text.length(),0);
-        editText.setText(ss);
+        spannableString.setSpan(new UnderlineSpan(), 0, text.length(),0);
+        editText.setText(spannableString);
         editText.setTextColor(Color.parseColor("#ff3300"));
 
     }
 
-    public void normalize_text(EditText editText, String text){
+    public void normalizeText(EditText editText, String text){
 
         editText.setText(text);
         editText.setTextColor(Color.parseColor("#000000"));
+
+    }
+
+    public void loginRedirect(){
+
+        Intent register_info = new Intent(this, Log.class);
+        startActivity(register_info);
 
     }
 
