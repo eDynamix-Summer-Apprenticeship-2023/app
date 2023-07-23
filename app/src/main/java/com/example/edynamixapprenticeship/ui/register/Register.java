@@ -84,6 +84,8 @@ public class Register extends AppCompatActivity {
 
         if(validEmail(emailValue) && validPassword(passwordValue, confirmPasswordValue)){
 
+            normalizeText(email, emailValue);
+
             alertMessage = "Successfully registered user !";
             Toast.makeText(this, alertMessage, Toast.LENGTH_LONG).show();
 
