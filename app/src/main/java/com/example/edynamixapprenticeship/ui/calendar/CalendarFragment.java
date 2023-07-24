@@ -93,6 +93,7 @@ public class CalendarFragment extends Fragment {
 
                 String evTxt = String.valueOf(eventTxt.getText());
 
+
                 eventList.add(new Event(evTxt, currentDate));
                 adapter.setAdaptList(eventList);
 
