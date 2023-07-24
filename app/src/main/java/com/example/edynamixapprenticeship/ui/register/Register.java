@@ -21,10 +21,12 @@ import com.example.edynamixapprenticeship.R;
 
 import org.bson.Document;
 
+import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import io.realm.Realm;
+import io.realm.RealmResults;
 import io.realm.mongodb.App;
 import io.realm.mongodb.AppConfiguration;
 import io.realm.mongodb.Credentials;
@@ -40,7 +42,7 @@ public class Register extends AppCompatActivity {
 
     MongoDatabase mongoDatabase;
     MongoClient mongoClient;
-
+    Realm realm;
     String appID = "edynamix-cqcwz";
     App app;
     User user;
@@ -89,7 +91,7 @@ public class Register extends AppCompatActivity {
             alertMessage = "Successfully registered user !";
             Toast.makeText(this, alertMessage, Toast.LENGTH_LONG).show();
 
-            mongoCollection.insertOne(new Document("userID", user.getId()).append("Email/password", emailValue + " " + passwordValue)).getAsync(it->{});
+            addData();
 
             //loginRedirect();
 
@@ -113,6 +115,12 @@ public class Register extends AppCompatActivity {
 
     }
 
+    public void addData(){
+
+        Document document = new Document().append("Email:", emailValue).append("Password:", passwordValue);
+        mongoCollection.insertOne(document).getAsync(it->{});
+
+    }
 
     public void clickableText() {
 
