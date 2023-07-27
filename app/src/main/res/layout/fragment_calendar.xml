@@ -10,8 +10,8 @@
 
     <CalendarView
         android:id="@+id/cal"
-        android:layout_width="371dp"
-        android:layout_height="wrap_content"
+        android:layout_width="401dp"
+        android:layout_height="350dp"
         android:layout_centerHorizontal="true"
         android:background="@color/white"
         android:focusedMonthDateColor="@color/white" />
