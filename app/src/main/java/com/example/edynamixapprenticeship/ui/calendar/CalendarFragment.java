@@ -76,7 +76,7 @@ public class CalendarFragment extends Fragment {
             public void onSelectedDayChange(CalendarView view, int year, int month, int day) {
                 Calendar c = Calendar.getInstance();
                 c.set(year, month, day);
-                currentDate=new Date ( c.getTimeInMillis()); //this is what you want to use later
+                currentDate=new Date ( c.getTimeInMillis());
             }
         });
 
