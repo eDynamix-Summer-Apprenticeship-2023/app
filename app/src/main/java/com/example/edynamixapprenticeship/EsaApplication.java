@@ -8,17 +8,30 @@ import com.google.android.material.color.DynamicColors;
 
 import java.util.Objects;
 
+import dagger.Module;
+import dagger.Provides;
+import dagger.hilt.InstallIn;
 import dagger.hilt.android.HiltAndroidApp;
+import dagger.hilt.components.SingletonComponent;
+import dagger.hilt.processor.internal.definecomponent.codegen._dagger_hilt_components_SingletonComponent;
 import io.realm.Realm;
 import io.realm.mongodb.App;
 import io.realm.mongodb.AppConfiguration;
 import io.realm.mongodb.Credentials;
+import io.realm.mongodb.User;
 import io.realm.mongodb.sync.Subscription;
 import io.realm.mongodb.sync.SyncConfiguration;
 
 @HiltAndroidApp
+@Module
+@InstallIn(SingletonComponent.class)
 public class EsaApplication extends Application {
     private App realmApp;
+    private User realmUser;
+    @Provides
+    public User getRealmUser() {
+        return realmUser;
+    }
 
     @Override
     public void onCreate() {
@@ -41,6 +54,7 @@ public class EsaApplication extends Application {
                             subscriptions.addOrUpdate(Subscription.create("allRecordings", realm.where(Recording.class)));
                         })
                         .build();
+                realmUser = it.getOrThrow();
                 Realm.setDefaultConfiguration(config);
             } else {
                 Log.e("AUTH", "Failed to log in: " + it.getError().getErrorMessage());
