@@ -8,19 +8,19 @@
     <TextView
         android:id="@+id/DisplayDate"
         android:layout_width="30dp"
-        android:layout_height="28dp"
+        android:layout_height="35dp"
         android:layout_weight="1"
         android:text="-"
-        android:textSize="18sp"
+        android:textSize="16sp"
         android:textStyle="bold" />
 
     <TextView
         android:id="@+id/DisplayEvent"
-        android:layout_width="30dp"
+        android:layout_width="25dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:text="-"
-        android:textSize="18sp"
+        android:textSize="16sp"
         android:textStyle="bold" />
 
     <Button

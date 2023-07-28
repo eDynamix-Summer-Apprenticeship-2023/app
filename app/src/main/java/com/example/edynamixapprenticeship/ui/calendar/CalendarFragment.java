@@ -28,7 +28,7 @@ import java.util.List;
 public class CalendarFragment extends Fragment {
     private EventAdapter adapter;
     private EventAdapter dadapter;//
-    private RecyclerView rec;
+    private RecyclerView recyclerView;
     private CalendarView calendar;
     private  Button btn;
     private List<Event> eventList;
@@ -63,10 +63,10 @@ public class CalendarFragment extends Fragment {
     @Override
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-        rec = view.findViewById(R.id.rec);
-        rec.setLayoutManager(new LinearLayoutManager(requireContext()));
+        recyclerView = view.findViewById(R.id.rec);
+        recyclerView.setLayoutManager(new LinearLayoutManager(requireContext()));
         adapter.setAdaptList(eventList);
-        rec.setAdapter(adapter);
+        recyclerView.setAdapter(adapter);
         calendar =view.findViewById(R.id.cal);
         btn = view.findViewById(R.id.btn);
         eventTxt =view.findViewById(R.id.EventTxt);
@@ -88,7 +88,6 @@ public class CalendarFragment extends Fragment {
                 eventList.add(new Event(evTxt));
                 adapter.setAdaptList(eventList);
                 adapter.notifyDataSetChanged();
-
             }
         });
 

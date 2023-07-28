@@ -22,11 +22,10 @@
         android:layout_height="72dp"
         android:layout_below="@id/cal"
         android:layout_alignParentEnd="true"
-
         android:layout_centerVertical="true"
         android:layout_marginStart="250dp"
-        android:layout_marginTop="3dp"
-        android:layout_marginEnd="24dp"
+        android:layout_marginTop="5dp"
+        android:layout_marginEnd="19dp"
         android:onClick="btn"
         android:text="Add event"
         android:textSize="16dp"
@@ -34,14 +33,15 @@
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/rec"
-        android:layout_width="359dp"
-        android:layout_height="316dp"
+        android:layout_width="364dp"
+        android:layout_height="305dp"
         android:layout_below="@id/btn"
         android:layout_alignStart="@id/cal"
         android:layout_alignEnd="@id/cal"
         android:layout_alignParentBottom="true"
-        android:layout_marginStart="12dp"
-        android:layout_marginTop="16dp"
+        android:layout_marginStart="18dp"
+        android:layout_marginTop="15dp"
+        android:layout_marginEnd="19dp"
         android:layout_marginBottom="-14dp" />
 
     <EditText
