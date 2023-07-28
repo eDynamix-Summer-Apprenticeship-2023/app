@@ -1,8 +1,10 @@
 package com.example.edynamixapprenticeship.data.audio;
 
 import android.content.ContentResolver;
+import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.Context;
+import android.database.Cursor;
 import android.media.MediaMetadataRetriever;
 import android.media.MediaPlayer;
 import android.media.MediaRecorder;
@@ -15,7 +17,6 @@ import android.os.ParcelFileDescriptor;
 import android.provider.MediaStore;
 import android.util.Log;
 
-import androidx.annotation.RequiresApi;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 
@@ -48,7 +49,7 @@ public class RecordingLocalDataSource {
     private final Runnable playingProgressRunnable;
     private MediaRecorder recorder;
     private MediaPlayer player;
-    private String recordingLocation;
+    private Recording currentRecording;
 
     @Inject
     public RecordingLocalDataSource(@ApplicationContext Context context) {
@@ -76,86 +77,57 @@ public class RecordingLocalDataSource {
         };
     }
 
-    public void startRecording() {
-        String fileName = "recording_" + System.currentTimeMillis() + ".3gp";
-
-        recorder = new MediaRecorder();
-        recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
-        recorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
-        recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
-
+    private static Cursor getRecordingCursor(Context context, Recording recording) {
+        Uri collection;
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-            Uri audioUri;
-            try {
-                audioUri = createAudioFileUri(context, fileName);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
-            try {
-                ParcelFileDescriptor pfd = context.getContentResolver().openFileDescriptor(audioUri, "w");
-                recorder.setOutputFile(pfd.getFileDescriptor());
-                recordingLocation = audioUri.toString();
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-            }
+            collection = MediaStore.Video.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY);
         } else {
-            File directory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC);
-            File file = new File(directory, fileName);
-            recorder.setOutputFile(file.getAbsolutePath());
-            recordingLocation = file.getAbsolutePath();
+            collection = MediaStore.Video.Media.EXTERNAL_CONTENT_URI;
         }
 
-        try {
-            recorder.prepare();
-            recorder.start();
-        } catch (IOException e) {
-            Log.e(LOG_TAG, "MediaRecorder prepare() failed");
-            Log.e(LOG_TAG, e.getMessage());
-        }
+        String[] projections = new String[]{
+                MediaStore.Audio.Media._ID,
+                MediaStore.Audio.Media.DURATION,
+        };
+
+        String selection = MediaStore.Audio.Media._ID + " = ?";
+        String[] selectionArgs = new String[]{
+                recording.getId().toString()
+        };
+
+        return context.getContentResolver().query(collection, projections, selection, selectionArgs, null);
     }
 
-    public void stopRecording() {
-        recorder.stop();
-        recorder.reset();
-        recorder.release();
-        recorder = null;
+    private static Uri getRecordingUri(Context context, Recording recording) {
+        Cursor recordingCursor = getRecordingCursor(context, recording);
 
-        Recording newRecording = new Recording(recordingLocation, getDurationOfRecording(recordingLocation), Calendar.getInstance().getTime());
+        int idColumn = recordingCursor.getColumnIndexOrThrow(MediaStore.Video.Media._ID);
+        long id = recordingCursor.getLong(idColumn);
 
-        realm.executeTransactionAsync(bgRealm -> bgRealm.copyToRealmOrUpdate(newRecording));
-//        realm.executeTransactionAsync(realm -> {
-//            Recording recording = realm.createObject(Recording.class, UUID.randomUUID());
-//            recording.setLocation(recordingLocation);
-//            recording.setDuration(getDurationOfRecording(recordingLocation));
-//            recording.setCreatedAt(Calendar.getInstance().getTime());
-//        });
+        recordingCursor.close();
+
+        return ContentUris.withAppendedId(
+                MediaStore.Video.Media.EXTERNAL_CONTENT_URI, id);
     }
 
     public LiveData<List<Recording>> getRecordings() {
         return recordings;
     }
 
+    private static Uri createRecordingUri(Context context) {
+        ContentResolver contentResolver = context.getContentResolver();
+        Uri audioCollection = getAudioCollection();
 
-    public void startPlaying(Recording recording) {
-        if (playingRecording.getValue() != null) stopPlaying();
+        Log.d(LOG_TAG, audioCollection.toString());
 
-        player = new MediaPlayer();
-        try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                player.setDataSource(context, Uri.parse(recording.getLocation()));
-            } else {
-                player.setDataSource(recording.getLocation());
-            }
-            playingRecording.setValue(recording);
-            player.setOnCompletionListener(mediaPlayer -> stopPlaying());
-            player.prepare();
-            player.start();
+        ContentValues newAudioDetails = new ContentValues();
+        newAudioDetails.put(MediaStore.Audio.Media.MIME_TYPE, "audio/3gpp");
+        //newAudioDetails.put(MediaStore.Audio.Media.IS_PENDING, 1);
+        
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.S)
+            newAudioDetails.put(MediaStore.Audio.Media.IS_RECORDING, 1);
 
-            handler.postDelayed(playingProgressRunnable, 500);
-        } catch (IOException e) {
-            Log.e(LOG_TAG, "MediaPlayer prepare() failed");
-            Log.e(LOG_TAG, e.getMessage());
-        }
+        return contentResolver.insert(audioCollection, newAudioDetails);
     }
 
     public void stopPlaying() {
@@ -179,47 +151,104 @@ public class RecordingLocalDataSource {
         return playingProgress;
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.Q)
-    public Uri createAudioFileUri(Context context, String fileName) throws IOException {
-        ContentResolver contentResolver = context.getContentResolver();
-        Uri audioCollection = MediaStore.Audio.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY);
-        ContentValues newAudioDetails = new ContentValues();
-        newAudioDetails.put(MediaStore.Audio.Media.DISPLAY_NAME, fileName);
-        newAudioDetails.put(MediaStore.Audio.Media.MIME_TYPE, "audio/3gpp");
-        newAudioDetails.put(MediaStore.Audio.Media.IS_PENDING, 1);
-
-        Uri audioUri = contentResolver.insert(audioCollection, newAudioDetails);
-
-        if (audioUri == null) {
-            throw new IOException("Failed to create new MediaStore record.");
+    private static Uri getAudioCollection() {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+            return MediaStore.Audio.Media.getContentUri(MediaStore.VOLUME_EXTERNAL_PRIMARY);
+        } else {
+            File directory = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC);
+            return MediaStore.Audio.Media.getContentUriForPath(directory.getAbsolutePath());
         }
-
-        return audioUri;
-    }
-
-    private long getDurationOfRecording(String location) {
-        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
-        try {
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                retriever.setDataSource(context, Uri.parse(location));
-            } else {
-                retriever.setDataSource(location);
-            }
-            String durationStr = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                retriever.close();
-            }
-
-            long durationMs = Long.parseLong(durationStr);
-            return 1 + TimeUnit.MILLISECONDS.toSeconds(durationMs);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return 0;
     }
 
     public void close() {
         if (!realm.isClosed()) realm.close();
+    }
+
+    public void startRecording() {
+        currentRecording = new Recording();
+        currentRecording.setCreatedAt(Calendar.getInstance().getTime());
+
+        recorder = new MediaRecorder();
+        recorder.setAudioSource(MediaRecorder.AudioSource.MIC);
+        recorder.setOutputFormat(MediaRecorder.OutputFormat.THREE_GPP);
+        recorder.setAudioEncoder(MediaRecorder.AudioEncoder.AMR_NB);
+        recorder.setOutputFile(createRecordingPfd().getFileDescriptor());
+
+        try {
+            recorder.prepare();
+            recorder.start();
+        } catch (IOException e) {
+            Log.e(LOG_TAG, "MediaRecorder prepare() failed");
+            Log.e(LOG_TAG, e.getMessage());
+        }
+    }
+
+    public void stopRecording() {
+        recorder.stop();
+        recorder.reset();
+        recorder.release();
+        recorder = null;
+
+        Cursor recordingCursor = getRecordingCursor(context, currentRecording);
+        Log.d(LOG_TAG, String.valueOf(recordingCursor.getCount()));
+
+        currentRecording.setDuration(getDurationOfRecording(currentRecording));
+
+        realm.executeTransactionAsync(bgRealm -> {
+            bgRealm.copyToRealmOrUpdate(currentRecording);
+            currentRecording = null;
+        });
+    }
+
+    public void startPlaying(Recording recording) {
+        if (playingRecording.getValue() != null) stopPlaying();
+
+        Uri recordingUri = getRecordingUri(context, recording);
+        Log.d(LOG_TAG, recordingUri.toString());
+        player = MediaPlayer.create(context, recordingUri);
+        player.setOnCompletionListener(mediaPlayer -> stopPlaying());
+        player.start();
+
+        playingRecording.setValue(recording);
+
+        handler.postDelayed(playingProgressRunnable, 500);
+    }
+
+    private long getDurationOfRecording(Recording recording) {
+        MediaMetadataRetriever retriever = new MediaMetadataRetriever();
+
+        retriever.setDataSource(getRecordingPfd(recording).getFileDescriptor());
+        String durationStr = retriever.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION);
+
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+            try {
+                retriever.close();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }
+
+        long durationMs = Long.parseLong(durationStr);
+        return 1 + TimeUnit.MILLISECONDS.toSeconds(durationMs);
+    }
+
+    private ParcelFileDescriptor createRecordingPfd() {
+        try {
+            return context
+                    .getContentResolver()
+                    .openFileDescriptor(createRecordingUri(context), "w");
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    private ParcelFileDescriptor getRecordingPfd(Recording recording) {
+        try {
+            return context
+                    .getContentResolver()
+                    .openFileDescriptor(getRecordingUri(context, recording), "r");
+        } catch (FileNotFoundException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

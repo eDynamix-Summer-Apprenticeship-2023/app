@@ -37,7 +37,9 @@ public class EsaApplication extends Application {
             if (it.isSuccess()) {
                 Log.i("AUTH", "Logged in as: " + it.get().getId());
                 SyncConfiguration config = new SyncConfiguration.Builder(Objects.requireNonNull(realmApp.currentUser()))
-                        .initialSubscriptions((realm, subscriptions) -> subscriptions.add(Subscription.create("allRecordings", realm.where(Recording.class))))
+                        .initialSubscriptions((realm, subscriptions) -> {
+                            subscriptions.addOrUpdate(Subscription.create("allRecordings", realm.where(Recording.class)));
+                        })
                         .build();
                 Realm.setDefaultConfiguration(config);
             } else {

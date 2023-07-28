@@ -6,24 +6,30 @@ import java.util.UUID;
 import io.realm.RealmObject;
 import io.realm.annotations.PrimaryKey;
 import io.realm.annotations.RealmField;
+import io.realm.annotations.Required;
 
 public class Recording extends RealmObject {
+    @SuppressWarnings("FieldMayBeFinal")
     @PrimaryKey
     @RealmField("_id")
-    private UUID id = UUID.randomUUID();
+    private UUID id;
     private String title;
-    private String location;
-    private long duration;
+    @Required
+    private Long duration;
+    @Required
     private Date createdAt;
 
-    public Recording(String location, long duration, Date createdAt) {
+    public Recording(long duration, Date createdAt) {
+        this.id = UUID.randomUUID();
         this.title = null;
-        this.location = location;
         this.duration = duration;
         this.createdAt = createdAt;
     }
 
     public Recording() {
+        this.id = UUID.randomUUID();
+        this.duration = 0L;
+        this.createdAt = new Date();
     }
 
     public UUID getId() {
@@ -47,19 +53,15 @@ public class Recording extends RealmObject {
         this.duration = duration;
     }
 
-    public String getLocation() {
-        return location;
-    }
-
-    public void setLocation(String location) {
-        this.location = location;
-    }
-
     public Date getCreatedAt() {
         return createdAt;
     }
 
     public void setCreatedAt(Date createdAt) {
         this.createdAt = createdAt;
+    }
+
+    public String getSource() {
+        return "recording_" + id + ".3gp";
     }
 }

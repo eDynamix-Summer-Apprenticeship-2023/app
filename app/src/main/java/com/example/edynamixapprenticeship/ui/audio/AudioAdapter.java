@@ -17,7 +17,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
 
 public class AudioAdapter extends RecyclerView.Adapter<AudioAdapter.ViewHolder> {
-    private RecordingItemBinding binding;
     private List<Recording> recordings;
     private Recording playingRecording;
     private long playingPosition;
@@ -27,7 +26,7 @@ public class AudioAdapter extends RecyclerView.Adapter<AudioAdapter.ViewHolder> 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        binding = RecordingItemBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
+        RecordingItemBinding binding = RecordingItemBinding.inflate(LayoutInflater.from(parent.getContext()), parent, false);
         return new ViewHolder(binding);
     }
 
