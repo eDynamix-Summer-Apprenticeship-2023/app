@@ -2,13 +2,13 @@ package com.example.edynamixapprenticeship.model.weather;
 
 import com.google.gson.annotations.SerializedName;
 
-public class WeatherResponse {
+public class CurrentWeatherResponse {
     @SerializedName("location")
     private LocationResponse location;
     @SerializedName("current")
     private CurrentResponse current;
 
-    public WeatherResponse(LocationResponse location, CurrentResponse current) {
+    public CurrentWeatherResponse(LocationResponse location, CurrentResponse current) {
         this.location = location;
         this.current = current;
     }

@@ -24,7 +24,6 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="8dp"
         android:layout_marginTop="32dp"
-        android:text="София"
         android:textColor="@color/white"
         android:textSize="36sp"
         app:layout_constraintEnd_toStartOf="@+id/locationCurEmoji"
@@ -37,7 +36,6 @@
         android:layout_height="wrap_content"
         android:layout_marginTop="32dp"
         android:layout_marginEnd="32dp"
-        android:text="20℃"
         android:textColor="@color/white"
         android:textSize="36sp"
         app:layout_constraintEnd_toEndOf="parent"
@@ -59,12 +57,12 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="40dp"
-        android:text="@string/Bulgaria"
+        android:layout_marginTop="24dp"
+        android:text="@string/bulgaria"
         android:textColor="@color/white"
         android:textSize="38sp"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/locationCurText" />
+        app:layout_constraintTop_toBottomOf="@+id/buttonCity" />
 
     <include
         android:id="@+id/weatherBg1"
@@ -101,8 +99,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_marginStart="16dp"
-        android:layout_marginTop="40dp"
-        android:text="@string/Europe"
+        android:layout_marginTop="24dp"
+        android:text="@string/europe"
         android:textColor="@color/white"
         android:textSize="38sp"
         app:layout_constraintStart_toStartOf="parent"
@@ -137,5 +135,23 @@
         android:layout_marginEnd="24dp"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toBottomOf="@+id/textView5" />
+
+    <Button
+        android:id="@+id/buttonCity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="32dp"
+        android:text="@string/cities"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/locationCurText" />
+
+    <Button
+        android:id="@+id/buttonResort"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="32dp"
+        android:text="@string/resorts"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/locationCurText" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

@@ -4,6 +4,10 @@
     <string name="fab_record_text">Record</string>
     <string name="fab_save.text">Save</string>
     <string name="the_weather">The weather</string>
-    <string name="Bulgaria">Bulgaria</string>
-    <string name="Europe">Europe</string>
+    <string name="bulgaria">Bulgaria</string>
+    <string name="europe">Europe</string>
+    <string name="resorts">Resorts</string>
+    <string name="cities">Cities</string>
+    <string name="current_weather">Current weather</string>
+    <string name="forecast">Forecast</string>
 </resources>

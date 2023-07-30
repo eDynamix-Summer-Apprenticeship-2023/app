@@ -8,7 +8,13 @@ public class ConditionResponse {
     @SerializedName("icon")
     private String icon;
     @SerializedName("code")
-    private String code;
+    private int code;
+
+    public ConditionResponse(String description, String icon, int code) {
+        this.description = description;
+        this.icon = icon;
+        this.code = code;
+    }
 
     public String getDescription() {
         return description;
@@ -18,7 +24,7 @@ public class ConditionResponse {
         return icon;
     }
 
-    public String getCode() {
+    public int getCode() {
         return code;
     }
 }
