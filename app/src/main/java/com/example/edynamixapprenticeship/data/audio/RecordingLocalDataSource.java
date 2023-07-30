@@ -28,6 +28,7 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
 import javax.inject.Inject;
@@ -35,8 +36,11 @@ import javax.inject.Inject;
 import dagger.hilt.android.qualifiers.ApplicationContext;
 import io.realm.Realm;
 import io.realm.RealmResults;
+import io.realm.mongodb.User;
 
 public class RecordingLocalDataSource {
+    @Inject
+    public User realmUser;
     private static final String LOG_TAG = RecordingLocalDataSource.class.getSimpleName();
     private final Context context;
     private final Handler handler;
@@ -179,7 +183,7 @@ public class RecordingLocalDataSource {
             recorder.start();
         } catch (IOException e) {
             Log.e(LOG_TAG, "MediaRecorder prepare() failed");
-            Log.e(LOG_TAG, e.getMessage());
+            Log.e(LOG_TAG, Objects.requireNonNull(e.getMessage()));
         }
     }
 
@@ -228,6 +232,7 @@ public class RecordingLocalDataSource {
             }
         }
 
+        assert durationStr != null;
         long durationMs = Long.parseLong(durationStr);
         return 1 + TimeUnit.MILLISECONDS.toSeconds(durationMs);
     }
