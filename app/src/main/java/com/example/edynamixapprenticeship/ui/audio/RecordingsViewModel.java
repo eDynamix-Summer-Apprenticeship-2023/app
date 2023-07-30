@@ -17,7 +17,8 @@ import dagger.hilt.android.lifecycle.HiltViewModel;
 public class RecordingsViewModel extends ViewModel {
     private final RecordingRepository recordingRepository;
     private final LiveData<List<Recording>> recordings;
-    private final LiveData<Recording> currentlyPlayingRecording;
+    private final LiveData<Recording> playingRecording;
+    private final LiveData<Long> playingProgress;
     private final MutableLiveData<Boolean> isRecording;
 
     @Inject
@@ -25,7 +26,8 @@ public class RecordingsViewModel extends ViewModel {
         this.isRecording = new MutableLiveData<>(false);
         recordingRepository = repository;
         recordings = recordingRepository.getRecordings();
-        currentlyPlayingRecording = recordingRepository.getCurrentlyPlayingRecording();
+        playingRecording = recordingRepository.getPlayingRecording();
+        playingProgress = recordingRepository.getPlayingProgress();
     }
 
     public LiveData<List<Recording>> getRecordings() {
@@ -43,20 +45,28 @@ public class RecordingsViewModel extends ViewModel {
     }
 
     public void togglePlayback(Recording recording) {
-        if (currentlyPlayingRecording.getValue() == null) {
+        if (playingRecording.getValue() == null) {
             recordingRepository.startPlayback(recording);
-        } else if (!currentlyPlayingRecording.getValue().equals(recording)) {
+        } else if (!playingRecording.getValue().equals(recording)) {
             recordingRepository.stopPlayback();
             recordingRepository.startPlayback(recording);
         } else recordingRepository.stopPlayback();
+    }
+
+    public void seekTo(Float position) {
+        recordingRepository.seekTo(position);
     }
 
     public LiveData<Boolean> isRecording() {
         return isRecording;
     }
 
-    public LiveData<Recording> getCurrentlyPlayingRecording() {
-        return currentlyPlayingRecording;
+    public LiveData<Recording> getPlayingRecording() {
+        return playingRecording;
+    }
+
+    public LiveData<Long> getPlayingProgress() {
+        return playingProgress;
     }
 
     @Override
