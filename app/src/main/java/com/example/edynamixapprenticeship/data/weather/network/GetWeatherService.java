@@ -13,6 +13,4 @@ public interface GetWeatherService {
     Call<CurrentWeatherResponse> getCurrentWeather(@Query("q") String city);
     @GET("/forecast")
     Call<ForecastWeatherResponse> getForecastWeather(@Query("q") String city);
-    @GET("/current")
-    Call<CurrentWeatherResponse> getCurrentWeatherByIp(@Query("byip") String byip);
 }

@@ -41,12 +41,13 @@ public class WeatherForecastActivity extends AppCompatActivity {
         View thirdDay = findViewById(R.id.thirdDay);
 
 
-        curCity.setText(city);
+
         GetWeatherService service = RetrofitClientInstance.getRetrofitInstance().create(GetWeatherService.class);
         Call<ForecastWeatherResponse> call = service.getForecastWeather(city);
         call.enqueue(new Callback<>() {
             @Override
             public void onResponse(Call<ForecastWeatherResponse> call, Response<ForecastWeatherResponse> response) {
+                curCity.setText(response.body().getLocation().getCity()+", "+response.body().getLocation().getCountry());
                 curTemp.setText(response.body().getCurrent().getTemp()+"℃");
                 curEmoji.setText(WeatherCodeDecoder.getEmoji(response.body().getCurrent().getCondition().getCode()));
                 curDesc.setText(response.body().getCurrent().getCondition().getDescription());

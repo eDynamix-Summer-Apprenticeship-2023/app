@@ -10,4 +10,7 @@
     <string name="cities">Cities</string>
     <string name="current_weather">Current weather</string>
     <string name="forecast">Forecast</string>
+    <string name="enter_city">Enter a city</string>
+    <string name="dialog_weather_title">City not found</string>
+    <string name="dialog_weather_message">We do not have information for this city</string>
 </resources>

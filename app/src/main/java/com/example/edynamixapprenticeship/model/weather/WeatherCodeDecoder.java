@@ -17,7 +17,7 @@ public class WeatherCodeDecoder {
         if(code >= 1062 && code <= 1072) {
             return "\uD83C\uDF24";
         }
-        if((code >= 1216 && code <= 1255) || (code >= 1255 && code <= 1264)) {
+        if((code >= 1216 && code <= 1237) || (code >= 1255 && code <= 1264)) {
             return "\uD83C\uDF28";
         }
         if((code >= 1183 && code <= 1207) || (code >= 1240 && code <= 1252)) {
